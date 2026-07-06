@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build, attach, and (optionally) publish plugin
+    runs-on: ubuntu-latest
+    # Job-level env so step-level `if:` can test secret presence.
+    env:
+      PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
+      CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}
+      PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+      PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build plugin distribution
+        run: ./gradlew :morphingbird:buildPlugin --stacktrace
+
+      - name: Create GitHub release with the plugin zip
+        uses: softprops/action-gh-release@v2
+        with:
+          files: idea-plugin/build/distributions/*.zip
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+
+      # Runs only when the PUBLISH_TOKEN repository secret is configured
+      # (see PUBLISHING.md). Until then, releases are GitHub-only and the
+      # custom plugin repository on Pages serves them to IDEs.
+      - name: Publish to JetBrains Marketplace
+        if: env.PUBLISH_TOKEN != ''
+        run: ./gradlew :morphingbird:publishPlugin --stacktrace

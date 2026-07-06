@@ -1,0 +1,11 @@
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- CG3 = disambiguation: pick one reading, discard the rest -->
+  <!-- selected reading -->
+  <circle cx="3.2" cy="4" r="1.1" fill="#59A869"/>
+  <path d="M6.1 4H13" stroke="#6C707E" stroke-width="1.6" stroke-linecap="round"/>
+  <!-- removed readings (struck) -->
+  <path d="M6.6 8H13" stroke="#9AA0AD" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M6.6 12H13" stroke="#9AA0AD" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M2.2 8H4" stroke="#D9544E" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M2.2 12H4" stroke="#D9544E" stroke-width="1.6" stroke-linecap="round"/>
+</svg>

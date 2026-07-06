@@ -1,0 +1,2 @@
+LIST Noun = n ;
+SELECT Noun IF (1 (det)) ;

@@ -1,0 +1,119 @@
+name: Pages
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'idea-plugin/src/main/resources/META-INF/plugin.xml'
+      - 'idea-plugin/build.gradle.kts'
+      - 'build.gradle.kts'
+      - 'README.md'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build custom plugin repository + docs site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate updatePlugins.xml and index.html from plugin.xml
+        run: |
+          mkdir -p _site
+          python3 - <<'PY'
+          import re, html, pathlib, xml.etree.ElementTree as ET
+
+          REPO = "alexeyev/morphingbird"
+          # After the first Marketplace upload assigns a numeric plugin ID, set
+          # this to the real listing URL (refalcon-style, e.g.
+          # "https://plugins.jetbrains.com/plugin/NNNNN-morphingbird/") and the
+          # page below will link to it. Empty = link omitted.
+          MARKETPLACE_URL = ""
+
+          # ---- Pull metadata from the real source of truth (plugin.xml + Gradle),
+          # ---- never hand-duplicated, so this can't drift out of sync. ----
+          tree = ET.parse('idea-plugin/src/main/resources/META-INF/plugin.xml')
+          root = tree.getroot()
+          plugin_id = root.find('id').text.strip()
+          plugin_name = root.find('name').text.strip()
+          desc_el = root.find('description')
+          description = (desc_el.text or '').strip() if desc_el is not None else ''
+          # Collapse the CDATA HTML description down to plain-ish text for the repo page.
+          desc_plain = re.sub(r'<[^>]+>', '', description)
+          desc_plain = html.unescape(re.sub(r'\s+', ' ', desc_plain)).strip()
+
+          version = re.search(r'version\s*=\s*"([^"]+)"', open('build.gradle.kts').read()).group(1)
+          since_build = re.search(r'sinceBuild\s*=\s*"([^"]+)"', open('idea-plugin/build.gradle.kts').read()).group(1)
+
+          download_url = f"https://github.com/{REPO}/releases/download/v{version}/morphingbird-{version}.zip"
+
+          # ---- updatePlugins.xml (schema per JetBrains docs: plugins.jetbrains.com/docs/intellij/custom-plugin-repository.html) ----
+          update_plugins = f'''<?xml version="1.0" encoding="UTF-8"?>
+          <plugins>
+              <plugin id="{plugin_id}" url="{download_url}" version="{version}">
+                  <name>{html.escape(plugin_name)}</name>
+                  <description><![CDATA[{description}]]></description>
+                  <idea-version since-build="{since_build}"/>
+              </plugin>
+          </plugins>
+          '''
+          pathlib.Path('_site/updatePlugins.xml').write_text(update_plugins, encoding='utf-8')
+
+          # ---- index.html: minimal instructional page, matching the refalcon repo style ----
+          mp = (f'or from the <a href="{MARKETPLACE_URL}">JetBrains Marketplace</a>.'
+                if MARKETPLACE_URL else
+                '(a JetBrains Marketplace listing will be linked here after the first publish).')
+          page = f'''<!DOCTYPE html><html lang="en"><head>
+          <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>{plugin_name} plugin repository</title>
+          <style>
+          body{{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+          max-width:720px;margin:60px auto;padding:0 20px;line-height:1.6;color:#24292f;}}
+          h1{{border-bottom:1px solid #d0d7de;padding-bottom:.3em;}}
+          code,pre{{background:#f6f8fa;border-radius:6px;}}
+          code{{padding:.2em .4em;font-size:90%;}}
+          pre{{padding:14px;overflow:auto;}}
+          a{{color:#0969da;}}
+          p.desc{{color:#57606a;}}
+          </style></head><body>
+          <h1>{plugin_name} — IntelliJ plugin repository</h1>
+          <p class="desc">{html.escape(desc_plain[:220])}{'…' if len(desc_plain) > 220 else ''}</p>
+          <p>In the IDE: <b>Settings → Plugins → ⚙ → Manage Plugin Repositories</b>, then add this URL:</p>
+          <pre><code>https://alexeyev.github.io/morphingbird/updatePlugins.xml</code></pre>
+          <p>Or install directly from the <a href="https://github.com/{REPO}/releases">GitHub Releases</a> page
+          {mp}</p>
+          <hr><p><a href="https://github.com/{REPO}">View the source on GitHub</a></p>
+          </body></html>'''
+          pathlib.Path('_site/index.html').write_text(page, encoding='utf-8')
+
+          print("wrote _site/updatePlugins.xml and _site/index.html")
+          print(f"  id={plugin_id} version={version} since={since_build}")
+          print(f"  download_url={download_url}")
+          PY
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

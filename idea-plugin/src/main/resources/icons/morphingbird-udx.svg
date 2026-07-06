@@ -1,0 +1,10 @@
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- udx = Apertium tag mapped to Universal Dependencies -->
+  <!-- source tag (angle-bracket tag mark) -->
+  <path d="M4.8 5L2.5 8L4.8 11" stroke="#3592C4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- mapping arrow -->
+  <path d="M7.4 8H9.4" stroke="#6C707E" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M8.8 6.4L10.6 8L8.8 9.6" stroke="#6C707E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- UD target node -->
+  <circle cx="13.8" cy="8" r="1.4" fill="#59A869"/>
+</svg>

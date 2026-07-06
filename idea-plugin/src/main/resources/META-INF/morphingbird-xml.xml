@@ -1,0 +1,35 @@
+<idea-plugin>
+    <!--
+      lttoolbox support (the "cheap half" per the plan): rather than writing a
+      parser for .dix/.lsx/.metadix, we treat them as XML so IntelliJ's bundled
+      XML support gives validation, tag/attribute completion, and a structure
+      view for free. This config-file is only loaded when com.intellij.modules.xml
+      is present (declared optional in the main plugin.xml).
+
+      Association strategy: map the lttoolbox extensions onto the XML language so
+      the standard XML editor handles them. Schema binding to lttoolbox's shipped
+      dix.dtd / dix.rng is offered via an external-resource hint; projects that
+      keep the DTD locally or reference it in the file's DOCTYPE get full
+      validation, and even without it the well-formedness + structure features
+      apply. The Apertium-specific cross-references (<par>/<pardef>, <s>/<sdef>,
+      and the shared tag bridge into the HFST side) are layered on top of the XML
+      PSI by the navigation handlers rather than re-implemented here.
+    -->
+    <extensions defaultExtensionNamespace="com.intellij">
+        <fileType
+            name="XML"
+            extensions="dix;lsx;metadix"/>
+
+        <!-- Hint IntelliJ about lttoolbox's public schema identifiers so files
+             that declare them in a DOCTYPE/namespace resolve without manual
+             setup. The actual DTD ships with apertium/lttoolbox. -->
+        <standardResourceProvider
+            implementation="io.github.alexeyev.morphingbird.lttoolbox.LttoolboxResourceProvider"/>
+
+        <!-- Cross-reference lttoolbox <s>/<sdef>/<par> into the shared symbol
+             graph, layered on the bundled XML PSI. -->
+        <psi.referenceContributor
+            language="XML"
+            implementation="io.github.alexeyev.morphingbird.lttoolbox.DixReferenceContributor"/>
+    </extensions>
+</idea-plugin>

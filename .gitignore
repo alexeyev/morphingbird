@@ -1,0 +1,30 @@
+# Build output
+build/
+out/
+*.class
+
+# Gradle
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IntelliJ IDEA project files
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Logs
+*.log
+
+# Generated reports Morphingbird writes into a module when run
+morphingbird-build-pipeline.md
+*-tagger-report.html
+
+# IntelliJ Platform Gradle Plugin local cache
+.intellijPlatform/

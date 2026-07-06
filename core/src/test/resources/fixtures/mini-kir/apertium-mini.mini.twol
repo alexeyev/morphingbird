@@ -1,0 +1,10 @@
+Alphabet
+ %{A%}:а %{A%}:е ;
+
+Sets
+ Vowel = а е и о у ;
+
+Rules
+
+"Back harmony of A"
+%{A%}:а <=> Vowel: _ ;

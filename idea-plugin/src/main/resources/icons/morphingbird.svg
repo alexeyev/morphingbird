@@ -1,0 +1,8 @@
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Morphingbird: two morpheme blocks meeting at a fusion seam -->
+  <rect x="1.6" y="4.5" width="3.1" height="7" rx="1" stroke="#6C707E" stroke-width="1.6"/>
+  <rect x="11.3" y="4.5" width="3.1" height="7" rx="1" stroke="#6C707E" stroke-width="1.6"/>
+  <!-- the junction seam where sound-change happens -->
+  <path d="M8 3.2V12.8" stroke="#3592C4" stroke-width="1.7" stroke-linecap="round"/>
+  <circle cx="8" cy="8" r="1.5" fill="#3592C4"/>
+</svg>

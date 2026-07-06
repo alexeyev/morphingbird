@@ -1,0 +1,268 @@
+<idea-plugin>
+    <id>io.github.alexeyev.morphingbird</id>
+    <name>Morphingbird</name>
+    <vendor email="anton.m.alexeyev@gmail.com" url="https://github.com/alexeyev">Anton Alekseev</vendor>
+
+    <description><![CDATA[
+        Morphingbird shape-shifts to fit whatever <b>Apertium</b> morphological-transducer
+        source file you hand it, understanding ten cooperating formats — <b>lexc</b>,
+        <b>lexd</b>, <b>twol</b>, <b>twoc</b>, <b>CG3</b> (.rlx), lttoolbox
+        <b>.dix/.lsx/.metadix</b> XML, the Apertium&#8594;UD <b>.udx</b> mapping and
+        <b>.spellrelax</b> — and it builds a cross-file symbol graph underneath so a
+        morphological tag is one logical node no matter which notation it's wearing.
+        That lets you navigate "what comes from where" and "what depends on what"
+        across the whole module.<br/><br/>
+        Features: syntax highlighting with customizable color schemes, structure
+        view, cross-file &amp; cross-format go-to-definition and Find Usages
+        (continuation classes, tags, archiphonemes, lexd patterns/lexicons),
+        Go to Symbol, hover documentation with an Apertium tagset glossary,
+        index-driven completion, two-tier validation (instant compiler-free
+        cross-file checks plus a background pass that runs the real HFST /
+        lttoolbox / CG3 compilers), a quick-fix to declare an undeclared tag,
+        an "Apertium mode" run configuration with a modes.xml-driven picker and
+        clickable compiler errors, a "Show Build Pipeline" view (a Mermaid
+        diagram and plain-language tips reconstructed from modes.xml and the
+        Makefile, with test-suite awareness), an "apertium-regtest" runner, and
+        an "Analyze Tagger Model" report that decodes a <b>.prob</b> tagger file
+        without running apertium-tagger.<br/><br/>
+        Source and issues:
+        <a href="https://github.com/alexeyev/morphingbird">github.com/alexeyev/morphingbird</a>
+    ]]></description>
+
+    <change-notes><![CDATA[
+        <b>0.1.0</b> — first release, hatched. Language support for ten Apertium
+        source formats, a cross-format symbol graph powering navigation, validation,
+        completion and quick-fixes; build-pipeline visualization; an
+        apertium-regtest runner; and .prob tagger-model analysis.
+    ]]></change-notes>
+
+    <!-- Bundled XML support gives the lttoolbox .dix/.lsx schema-driven half. -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.lang</depends>
+    <depends optional="true" config-file="morphingbird-xml.xml">com.intellij.modules.xml</depends>
+
+    <extensions defaultExtensionNamespace="com.intellij">
+        <!-- ===== lexc ===== -->
+        <fileType
+            name="Apertium lexc"
+            implementationClass="io.github.alexeyev.morphingbird.lexc.LexcFileType"
+            fieldName="INSTANCE"
+            language="MorphingbirdLexc"
+            extensions="lexc"/>
+        <lang.parserDefinition
+            language="MorphingbirdLexc"
+            implementationClass="io.github.alexeyev.morphingbird.lexc.LexcParserDefinition"/>
+        <lang.syntaxHighlighterFactory
+            language="MorphingbirdLexc"
+            implementationClass="io.github.alexeyev.morphingbird.lexc.LexcSyntaxHighlighterFactory"/>
+        <colorSettingsPage
+            implementation="io.github.alexeyev.morphingbird.lexc.LexcColorSettingsPage"/>
+        <colorSettingsPage
+            implementation="io.github.alexeyev.morphingbird.twol.TwolColorSettingsPage"/>
+        <colorSettingsPage
+            implementation="io.github.alexeyev.morphingbird.cg3.Cg3ColorSettingsPage"/>
+        <colorSettingsPage
+            implementation="io.github.alexeyev.morphingbird.udx.UdxColorSettingsPage"/>
+        <colorSettingsPage
+            implementation="io.github.alexeyev.morphingbird.lexd.LexdColorSettingsPage"/>
+        <colorSettingsPage
+            implementation="io.github.alexeyev.morphingbird.spellrelax.SpellRelaxColorSettingsPage"/>
+        <lang.commenter
+            language="MorphingbirdLexc"
+            implementationClass="io.github.alexeyev.morphingbird.lexc.LexcCommenter"/>
+        <lang.braceMatcher
+            language="MorphingbirdLexc"
+            implementationClass="io.github.alexeyev.morphingbird.lexc.LexcBraceMatcher"/>
+        <lang.psiStructureViewFactory
+            language="MorphingbirdLexc"
+            implementationClass="io.github.alexeyev.morphingbird.lexc.LexcStructureViewFactory"/>
+        <completion.contributor
+            language="MorphingbirdLexc"
+            implementationClass="io.github.alexeyev.morphingbird.lexc.LexcCompletionContributor"/>
+        <annotator
+            language="MorphingbirdLexc"
+            implementationClass="io.github.alexeyev.morphingbird.validation.MorphingbirdValidationAnnotator"/>
+        <externalAnnotator
+            language="MorphingbirdLexc"
+            implementationClass="io.github.alexeyev.morphingbird.validation.MorphingbirdExternalAnnotator"/>
+
+        <!-- ===== twol ===== -->
+        <fileType
+            name="Apertium twol"
+            implementationClass="io.github.alexeyev.morphingbird.twol.TwolFileType"
+            fieldName="INSTANCE"
+            language="MorphingbirdTwol"
+            extensions="twol;twoc"/>
+        <lang.parserDefinition
+            language="MorphingbirdTwol"
+            implementationClass="io.github.alexeyev.morphingbird.twol.TwolParserDefinition"/>
+        <lang.syntaxHighlighterFactory
+            language="MorphingbirdTwol"
+            implementationClass="io.github.alexeyev.morphingbird.twol.TwolSyntaxHighlighterFactory"/>
+        <lang.commenter
+            language="MorphingbirdTwol"
+            implementationClass="io.github.alexeyev.morphingbird.twol.TwolCommenter"/>
+        <lang.psiStructureViewFactory
+            language="MorphingbirdTwol"
+            implementationClass="io.github.alexeyev.morphingbird.twol.TwolStructureViewFactory"/>
+        <completion.contributor
+            language="MorphingbirdTwol"
+            implementationClass="io.github.alexeyev.morphingbird.twol.TwolCompletionContributor"/>
+        <externalAnnotator
+            language="MorphingbirdTwol"
+            implementationClass="io.github.alexeyev.morphingbird.validation.MorphingbirdExternalAnnotator"/>
+
+        <!-- ===== CG3 ===== -->
+        <fileType
+            name="Apertium CG3"
+            implementationClass="io.github.alexeyev.morphingbird.cg3.Cg3FileType"
+            fieldName="INSTANCE"
+            language="MorphingbirdCg3"
+            extensions="rlx"/>
+        <lang.parserDefinition
+            language="MorphingbirdCg3"
+            implementationClass="io.github.alexeyev.morphingbird.cg3.Cg3ParserDefinition"/>
+        <lang.syntaxHighlighterFactory
+            language="MorphingbirdCg3"
+            implementationClass="io.github.alexeyev.morphingbird.cg3.Cg3SyntaxHighlighterFactory"/>
+        <lang.commenter
+            language="MorphingbirdCg3"
+            implementationClass="io.github.alexeyev.morphingbird.cg3.Cg3Commenter"/>
+        <lang.psiStructureViewFactory
+            language="MorphingbirdCg3"
+            implementationClass="io.github.alexeyev.morphingbird.cg3.Cg3StructureViewFactory"/>
+        <completion.contributor
+            language="MorphingbirdCg3"
+            implementationClass="io.github.alexeyev.morphingbird.cg3.Cg3CompletionContributor"/>
+        <externalAnnotator
+            language="MorphingbirdCg3"
+            implementationClass="io.github.alexeyev.morphingbird.validation.MorphingbirdExternalAnnotator"/>
+
+        <!-- ===== spellrelax (HFST orthographic-variant rules) ===== -->
+        <fileType
+            name="Apertium spellrelax"
+            implementationClass="io.github.alexeyev.morphingbird.spellrelax.SpellRelaxFileType"
+            fieldName="INSTANCE"
+            language="MorphingbirdSpellRelax"
+            extensions="spellrelax"/>
+        <lang.parserDefinition
+            language="MorphingbirdSpellRelax"
+            implementationClass="io.github.alexeyev.morphingbird.spellrelax.SpellRelaxParserDefinition"/>
+        <lang.syntaxHighlighterFactory
+            language="MorphingbirdSpellRelax"
+            implementationClass="io.github.alexeyev.morphingbird.spellrelax.SpellRelaxSyntaxHighlighterFactory"/>
+        <lang.commenter
+            language="MorphingbirdSpellRelax"
+            implementationClass="io.github.alexeyev.morphingbird.spellrelax.SpellRelaxCommenter"/>
+
+        <!-- ===== lexd (Apertium pattern/lexicon morphology, e.g. Athabaskan) ===== -->
+        <fileType
+            name="Apertium lexd"
+            implementationClass="io.github.alexeyev.morphingbird.lexd.LexdFileType"
+            fieldName="INSTANCE"
+            language="MorphingbirdLexd"
+            extensions="lexd"/>
+        <lang.parserDefinition
+            language="MorphingbirdLexd"
+            implementationClass="io.github.alexeyev.morphingbird.lexd.LexdParserDefinition"/>
+        <lang.syntaxHighlighterFactory
+            language="MorphingbirdLexd"
+            implementationClass="io.github.alexeyev.morphingbird.lexd.LexdSyntaxHighlighterFactory"/>
+        <lang.commenter
+            language="MorphingbirdLexd"
+            implementationClass="io.github.alexeyev.morphingbird.lexd.LexdCommenter"/>
+
+        <!-- ===== udx (Apertium -> Universal Dependencies tag mapping) ===== -->
+        <fileType
+            name="Apertium UD mapping"
+            implementationClass="io.github.alexeyev.morphingbird.udx.UdxFileType"
+            fieldName="INSTANCE"
+            language="MorphingbirdUdx"
+            extensions="udx"/>
+        <lang.parserDefinition
+            language="MorphingbirdUdx"
+            implementationClass="io.github.alexeyev.morphingbird.udx.UdxParserDefinition"/>
+        <lang.syntaxHighlighterFactory
+            language="MorphingbirdUdx"
+            implementationClass="io.github.alexeyev.morphingbird.udx.UdxSyntaxHighlighterFactory"/>
+
+        <!-- ===== cross-DSL navigation (applies to all apertium languages) ===== -->
+        <gotoDeclarationHandler
+            implementation="io.github.alexeyev.morphingbird.nav.MorphingbirdGotoDeclarationHandler"/>
+        <gotoSymbolContributor
+            implementation="io.github.alexeyev.morphingbird.nav.MorphingbirdSymbolContributor"/>
+
+        <!-- ===== hover documentation (tag glosses, symbol info) ===== -->
+        <lang.documentationProvider
+            language="MorphingbirdLexc"
+            implementationClass="io.github.alexeyev.morphingbird.nav.MorphingbirdDocumentationProvider"/>
+        <lang.documentationProvider
+            language="MorphingbirdTwol"
+            implementationClass="io.github.alexeyev.morphingbird.nav.MorphingbirdDocumentationProvider"/>
+        <lang.documentationProvider
+            language="MorphingbirdCg3"
+            implementationClass="io.github.alexeyev.morphingbird.nav.MorphingbirdDocumentationProvider"/>
+        <lang.documentationProvider
+            language="MorphingbirdUdx"
+            implementationClass="io.github.alexeyev.morphingbird.nav.MorphingbirdDocumentationProvider"/>
+        <lang.documentationProvider
+            language="MorphingbirdLexd"
+            implementationClass="io.github.alexeyev.morphingbird.nav.MorphingbirdDocumentationProvider"/>
+
+        <!-- ===== references (enable Find Usages / Rename / highlighting) ===== -->
+        <psi.referenceContributor
+            language="MorphingbirdLexc"
+            implementation="io.github.alexeyev.morphingbird.refs.MorphingbirdReferenceContributor"/>
+        <lang.findUsagesProvider
+            language="MorphingbirdLexc"
+            implementationClass="io.github.alexeyev.morphingbird.refs.MorphingbirdFindUsagesProvider"/>
+        <lang.findUsagesProvider
+            language="MorphingbirdTwol"
+            implementationClass="io.github.alexeyev.morphingbird.refs.TwolFindUsagesProvider"/>
+        <lang.findUsagesProvider
+            language="MorphingbirdCg3"
+            implementationClass="io.github.alexeyev.morphingbird.refs.Cg3FindUsagesProvider"/>
+
+        <!-- ===== project services ===== -->
+        <projectService
+            serviceImplementation="io.github.alexeyev.morphingbird.index.MorphingbirdIndexService"/>
+
+        <!-- ===== run configuration ===== -->
+        <configurationType
+            implementation="io.github.alexeyev.morphingbird.run.MorphingbirdRunConfigurationType"/>
+        <runConfigurationProducer
+            implementation="io.github.alexeyev.morphingbird.run.MorphingbirdRunConfigurationProducer"/>
+        <runLineMarkerContributor
+            language=""
+            implementationClass="io.github.alexeyev.morphingbird.run.ModeRunLineMarkerContributor"/>
+    </extensions>
+
+    <actions>
+        <action id="Morphingbird.RenameLexicon"
+                class="io.github.alexeyev.morphingbird.refs.MorphingbirdRenameLexiconAction"
+                text="Rename Apertium Lexicon..."
+                description="Rename a LEXICON and all continuation references across the project">
+            <add-to-group group-id="RefactoringMenu" anchor="last"/>
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </action>
+        <action id="Morphingbird.ShowBuildPipeline"
+                class="io.github.alexeyev.morphingbird.run.ShowBuildPipelineAction"
+                text="Show Apertium Build Pipeline"
+                description="Generate a diagram and tips explaining how this module's build pipeline fits together">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <action id="Morphingbird.RunRegtest"
+                class="io.github.alexeyev.morphingbird.run.RunRegtestAction"
+                text="Run Apertium Regression Tests"
+                description="Run apertium-regtest for this module and show the results in a console">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <action id="Morphingbird.AnalyzeProb"
+                class="io.github.alexeyev.morphingbird.run.AnalyzeProbAction"
+                text="Analyze Tagger Model (.prob)"
+                description="Decode an Apertium .prob tagger model and show a report (tagset, training status, morphology cross-check) without running apertium-tagger">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>
