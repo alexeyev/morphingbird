@@ -4,6 +4,8 @@
 // IntelliJ-free :core module (the tested symbol-graph indexer), whose scanners
 // and SymbolIndex are reused verbatim.
 
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
+
 plugins {
     id("java")
     id("org.jetbrains.intellij.platform") version "2.10.4"
@@ -47,7 +49,8 @@ intellijPlatform {
         ides {
             // Verify against the current recommended IDEs (the latest unified
             // releases), so compatibility is checked, not merely declared.
-            recommended()
+            ide(IntelliJPlatformType.IntellijIdeaCommunity, "2024.3")
+            ide(IntelliJPlatformType.IntellijIdea, "2025.3")
         }
     }
 
