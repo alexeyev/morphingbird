@@ -4,8 +4,8 @@
     <vendor email="anton.m.alexeyev@gmail.com" url="https://github.com/alexeyev">Anton Alekseev</vendor>
 
     <description><![CDATA[
-        Morphingbird shape-shifts to fit whatever <b>Apertium</b> morphological-transducer
-        source file you hand it, understanding ten cooperating formats — <b>lexc</b>,
+        Morphingbird shape-shifts to fit morphological-transducer
+        source files you hand it, understanding ten formats — <b>lexc</b>,
         <b>lexd</b>, <b>twol</b>, <b>twoc</b>, <b>CG3</b> (.rlx), lttoolbox
         <b>.dix/.lsx/.metadix</b> XML, the Apertium&#8594;UD <b>.udx</b> mapping and
         <b>.spellrelax</b> — and it builds a cross-file symbol graph underneath so a
