@@ -30,10 +30,7 @@
     ]]></description>
 
     <change-notes><![CDATA[
-        <b>0.1.0</b> — first release, hatched. Language support for ten Apertium
-        source formats, a cross-format symbol graph powering navigation, validation,
-        completion and quick-fixes; build-pipeline visualization; an
-        apertium-regtest runner; and .prob tagger-model analysis.
+        <b>0.1.2</b> — a typo in plugin.xml format that ruined everything, fixed.
     ]]></change-notes>
 
     <!-- Bundled XML support gives the lttoolbox .dix/.lsx schema-driven half. -->
@@ -41,7 +38,7 @@
     <depends>com.intellij.modules.lang</depends>
     <depends optional="true" config-file="morphingbird-xml.xml">com.intellij.modules.xml</depends>
 
-    <extensions defaultExtensionNamespace="com.intellij">
+    <extensions defaultExtensionNs="com.intellij">
         <!-- ===== lexc ===== -->
         <fileType
             name="Apertium lexc"
